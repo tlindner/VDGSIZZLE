@@ -25,192 +25,211 @@
                       (       sizzle.asm):00025         ; view menu
 6014                  (       sizzle.asm):00026         view_menu
 6014 7F6001           (       sizzle.asm):00027             clr toggle
-6017 BD6063           (       sizzle.asm):00028             jsr switch_to_menu_view
+6017 BD609C           (       sizzle.asm):00028             jsr switch_to_menu_view
                       (       sizzle.asm):00029         ; check keyboard
 601A                  (       sizzle.asm):00030         menu_loop
 601A AD9FA000         (       sizzle.asm):00031             jsr [POLCAT]
 601E 27FA             (       sizzle.asm):00032             beq menu_loop
 6020 8147             (       sizzle.asm):00033             cmpa #'G
-6022 272B             (       sizzle.asm):00034             beq sub_go
+6022 2733             (       sizzle.asm):00034             beq sub_go
 6024 8154             (       sizzle.asm):00035             cmpa #'T
-6026 272D             (       sizzle.asm):00036             beq sub_toggle
-6028 8138             (       sizzle.asm):00037             cmpa #'8
-602A 2F02             (       sizzle.asm):00038             ble sub_number
-602C 20EC             (       sizzle.asm):00039             bra menu_loop
-                      (       sizzle.asm):00040         
-602E                  (       sizzle.asm):00041         sub_number
-602E 8131             (       sizzle.asm):00042             cmpa #'1
-6030 2C02             (       sizzle.asm):00043             bge continue_number
-6032 20E6             (       sizzle.asm):00044             bra menu_loop
-6034                  (       sizzle.asm):00045         continue_number
-6034 8031             (       sizzle.asm):00046             suba #'1
-                      (       sizzle.asm):00047             ; should have the bit position to flip
-                      (       sizzle.asm):00048             ; in A
-6036 C680             (       sizzle.asm):00049             ldb #$80
-6038                  (       sizzle.asm):00050         number_loop
-6038 4A               (       sizzle.asm):00051             deca
-6039 2B03             (       sizzle.asm):00052             bmi found_mask
-603B 54               (       sizzle.asm):00053             lsrb
-603C 20FA             (       sizzle.asm):00054             bra number_loop
-603E                  (       sizzle.asm):00055         found_mask
-603E F86000           (       sizzle.asm):00056             eorb bits
-6041 F76000           (       sizzle.asm):00057             stb bits
-6044 8D31             (       sizzle.asm):00058             bsr write_bits
-                      (       sizzle.asm):00059         ; check view
-6046 7D6001           (       sizzle.asm):00060             tst toggle
-6049 27CF             (       sizzle.asm):00061             beq menu_loop
-604B 8D4B             (       sizzle.asm):00062             bsr switch_to_display_view
-604D 20CB             (       sizzle.asm):00063             bra menu_loop
-                      (       sizzle.asm):00064             
-604F                  (       sizzle.asm):00065         sub_go
-604F BD60C6           (       sizzle.asm):00066             jsr go_view_all
-6052 7E6014           (       sizzle.asm):00067             jmp view_menu
-                      (       sizzle.asm):00068         
-6055                  (       sizzle.asm):00069         sub_toggle
-6055 BD605B           (       sizzle.asm):00070             jsr view_toggle
-6058 7E601A           (       sizzle.asm):00071             jmp menu_loop
-                      (       sizzle.asm):00072         
-605B                  (       sizzle.asm):00073         view_toggle
-605B 13               (       sizzle.asm):00074             sync
-605C 736001           (       sizzle.asm):00075             com toggle
-605F 2702             (       sizzle.asm):00076             beq switch_to_menu_view
-                      (       sizzle.asm):00077             ; change to display
-6061 2035             (       sizzle.asm):00078             bra switch_to_display_view
-                      (       sizzle.asm):00079         
-                      (       sizzle.asm):00080         ; Display bit description
-6063                  (       sizzle.asm):00081         switch_to_menu_view
-6063                  (       sizzle.asm):00082         info_display
-                      (       sizzle.asm):00083             ; set display address to $400
-6063 B7FFC6           (       sizzle.asm):00084             sta $ffc6
-6066 B7FFCA           (       sizzle.asm):00085             sta $ffca
-                      (       sizzle.asm):00086             ; Set display mode to SG4
-6069 B7FFC0           (       sizzle.asm):00087             sta $ffc0
-606C B7FFC2           (       sizzle.asm):00088             sta $ffc2
-606F B7FFC4           (       sizzle.asm):00089             sta $ffc4
-6072 8600             (       sizzle.asm):00090             lda #$0
-6074 B7FF22           (       sizzle.asm):00091             sta $ff22
-6077                  (       sizzle.asm):00092         write_bits
-                      (       sizzle.asm):00093             ; Write bits to text screen
-6077 B66000           (       sizzle.asm):00094             lda bits
-607A C608             (       sizzle.asm):00095             ldb #8
-607C 3406             (       sizzle.asm):00096             pshs a,b
-607E 8631             (       sizzle.asm):00097             lda #'1
-6080 C630             (       sizzle.asm):00098             ldb #'0
-6082 8E0460           (       sizzle.asm):00099             ldx #1120
-6085                  (       sizzle.asm):00100         info_loop
-6085 6860             (       sizzle.asm):00101             lsl 0,s
-6087 2404             (       sizzle.asm):00102             bcc write0
-6089                  (       sizzle.asm):00103         write1
-6089 A784             (       sizzle.asm):00104             sta ,x
-608B 2002             (       sizzle.asm):00105             bra written
-608D                  (       sizzle.asm):00106         write0
-608D E784             (       sizzle.asm):00107             stb ,x
-608F                  (       sizzle.asm):00108         written
-608F 308820           (       sizzle.asm):00109             leax 32,x
-6092 6A61             (       sizzle.asm):00110             dec 1,s
-6094 26EF             (       sizzle.asm):00111             bne info_loop
-6096 3586             (       sizzle.asm):00112             puls a,b,pc
-                      (       sizzle.asm):00113         
-6098                  (       sizzle.asm):00114         switch_to_display_view
-                      (       sizzle.asm):00115         ; Update SAM
-6098 B66000           (       sizzle.asm):00116             lda bits
-609B                  (       sizzle.asm):00117         do_v2
-609B 48               (       sizzle.asm):00118             lsla
-609C 2405             (       sizzle.asm):00119             bcc v2c
-609E                  (       sizzle.asm):00120         v2s
-609E B7FFC5           (       sizzle.asm):00121             sta $ffc5
-60A1 2003             (       sizzle.asm):00122             bra do_v1
-60A3                  (       sizzle.asm):00123         v2c
-60A3 B7FFC4           (       sizzle.asm):00124             sta $ffc4
-60A6                  (       sizzle.asm):00125         do_v1    
-60A6 48               (       sizzle.asm):00126             lsla
-60A7 2405             (       sizzle.asm):00127             bcc v1c
-60A9                  (       sizzle.asm):00128         v1s
-60A9 B7FFC3           (       sizzle.asm):00129             sta $ffc3
-60AC 2003             (       sizzle.asm):00130             bra do_v0
-60AE                  (       sizzle.asm):00131         v1c
-60AE B7FFC2           (       sizzle.asm):00132             sta $ffc2
-60B1                  (       sizzle.asm):00133         do_v0
-60B1 48               (       sizzle.asm):00134             lsla
-60B2 2405             (       sizzle.asm):00135             bcc v0c
-60B4                  (       sizzle.asm):00136         v0s
-60B4 B7FFC1           (       sizzle.asm):00137             sta $ffc1
-60B7 2003             (       sizzle.asm):00138             bra do_vdg
-60B9                  (       sizzle.asm):00139         v0c
-60B9 B7FFC0           (       sizzle.asm):00140             sta $ffc0
-                      (       sizzle.asm):00141         ; update VDG
-60BC                  (       sizzle.asm):00142         do_vdg
-60BC B7FF22           (       sizzle.asm):00143             sta $ff22
-                      (       sizzle.asm):00144         ; Switch display address to $e00    
-60BF B7FFC7           (       sizzle.asm):00145             sta $ffc7
-60C2 B7FFCB           (       sizzle.asm):00146             sta $ffcb
-60C5 39               (       sizzle.asm):00147             rts
-                      (       sizzle.asm):00148         
-60C6                  (       sizzle.asm):00149         go_view_all
-60C6 7F6001           (       sizzle.asm):00150             clr toggle
-60C9 736001           (       sizzle.asm):00151             com toggle
-60CC                  (       sizzle.asm):00152         next_view
-60CC 736001           (       sizzle.asm):00153             com toggle
-60CF 8D92             (       sizzle.asm):00154             bsr switch_to_menu_view   
-                      (       sizzle.asm):00155         ; wait four video frames
-60D1 13               (       sizzle.asm):00156             sync
-60D2 12               (       sizzle.asm):00157             nop
-60D3 13               (       sizzle.asm):00158             sync
-60D4 12               (       sizzle.asm):00159             nop
-60D5 13               (       sizzle.asm):00160             sync
-60D6 12               (       sizzle.asm):00161             nop
-60D7 13               (       sizzle.asm):00162             sync
-60D8 12               (       sizzle.asm):00163             nop
-60D9 13               (       sizzle.asm):00164             sync
-60DA 12               (       sizzle.asm):00165             nop
-60DB 13               (       sizzle.asm):00166             sync
-60DC 12               (       sizzle.asm):00167             nop
-60DD 13               (       sizzle.asm):00168             sync
-60DE 12               (       sizzle.asm):00169             nop
-60DF 13               (       sizzle.asm):00170             sync
-60E0 12               (       sizzle.asm):00171             nop
-60E1 13               (       sizzle.asm):00172             sync
-60E2 12               (       sizzle.asm):00173             nop
-60E3 13               (       sizzle.asm):00174             sync
-60E4 12               (       sizzle.asm):00175             nop
-60E5 13               (       sizzle.asm):00176             sync
-60E6 12               (       sizzle.asm):00177             nop
-60E7 13               (       sizzle.asm):00178             sync
-60E8 12               (       sizzle.asm):00179             nop
-60E9 736001           (       sizzle.asm):00180             com toggle
-60EC 8DAA             (       sizzle.asm):00181             bsr switch_to_display_view
-                      (       sizzle.asm):00182         ; wait four video frames
-60EE 13               (       sizzle.asm):00183             sync
-60EF 12               (       sizzle.asm):00184             nop
-60F0 13               (       sizzle.asm):00185             sync
-60F1 12               (       sizzle.asm):00186             nop
-60F2 13               (       sizzle.asm):00187             sync
-60F3 12               (       sizzle.asm):00188             nop
-60F4 13               (       sizzle.asm):00189             sync
-60F5 12               (       sizzle.asm):00190             nop
-60F6 13               (       sizzle.asm):00191             sync
-60F7 12               (       sizzle.asm):00192             nop
-60F8 13               (       sizzle.asm):00193             sync
-60F9 12               (       sizzle.asm):00194             nop
-60FA 13               (       sizzle.asm):00195             sync
-60FB 12               (       sizzle.asm):00196             nop
-60FC 13               (       sizzle.asm):00197             sync
-60FD 12               (       sizzle.asm):00198             nop
-60FE 13               (       sizzle.asm):00199             sync
-60FF 12               (       sizzle.asm):00200             nop
-6100 13               (       sizzle.asm):00201             sync
-6101 12               (       sizzle.asm):00202             nop
-6102 13               (       sizzle.asm):00203             sync
-6103 12               (       sizzle.asm):00204             nop
-6104 13               (       sizzle.asm):00205             sync
-6105 12               (       sizzle.asm):00206             nop
-                      (       sizzle.asm):00207         ; check for key press
-6106 AD9FA000         (       sizzle.asm):00208             jsr [POLCAT]
-610A 2605             (       sizzle.asm):00209             bne finish
-                      (       sizzle.asm):00210         ; incement same/vdg bits
-610C 7C6000           (       sizzle.asm):00211             inc bits
-610F 26BB             (       sizzle.asm):00212             bne next_view
-6111                  (       sizzle.asm):00213         finish
-6111 39               (       sizzle.asm):00214             rts
-                      (       sizzle.asm):00215         
-                      (       sizzle.asm):00216             end start
+6026 2735             (       sizzle.asm):00036             beq sub_toggle
+6028 8153             (       sizzle.asm):00037             cmpa #'S
+602A 2737             (       sizzle.asm):00038             beq inc_value
+602C 8141             (       sizzle.asm):00039             cmpa #'A
+602E 273B             (       sizzle.asm):00040             beq dec_value
+6030 8138             (       sizzle.asm):00041             cmpa #'8
+6032 2F02             (       sizzle.asm):00042             ble sub_number
+6034 20E4             (       sizzle.asm):00043             bra menu_loop
+                      (       sizzle.asm):00044         
+6036                  (       sizzle.asm):00045         sub_number
+6036 8131             (       sizzle.asm):00046             cmpa #'1
+6038 2C02             (       sizzle.asm):00047             bge continue_number
+603A 20DE             (       sizzle.asm):00048             bra menu_loop
+603C                  (       sizzle.asm):00049         continue_number
+603C 8031             (       sizzle.asm):00050             suba #'1
+                      (       sizzle.asm):00051             ; should have the bit position to flip
+                      (       sizzle.asm):00052             ; in A
+603E C680             (       sizzle.asm):00053             ldb #$80
+6040                  (       sizzle.asm):00054         number_loop
+6040 4A               (       sizzle.asm):00055             deca
+6041 2B03             (       sizzle.asm):00056             bmi found_mask
+6043 54               (       sizzle.asm):00057             lsrb
+6044 20FA             (       sizzle.asm):00058             bra number_loop
+6046                  (       sizzle.asm):00059         found_mask
+6046 F86000           (       sizzle.asm):00060             eorb bits
+6049 F76000           (       sizzle.asm):00061             stb bits
+604C 8D62             (       sizzle.asm):00062             bsr write_bits
+                      (       sizzle.asm):00063         ; check view
+604E                  (       sizzle.asm):00064         check_view
+604E 7D6001           (       sizzle.asm):00065             tst toggle
+6051 27C7             (       sizzle.asm):00066             beq menu_loop
+6053 8D5E             (       sizzle.asm):00067             bsr switch_to_display_view
+6055 20C3             (       sizzle.asm):00068             bra menu_loop
+                      (       sizzle.asm):00069             
+6057                  (       sizzle.asm):00070         sub_go
+6057 BD60E1           (       sizzle.asm):00071             jsr go_view_all
+605A 7E6014           (       sizzle.asm):00072             jmp view_menu
+                      (       sizzle.asm):00073         
+605D                  (       sizzle.asm):00074         sub_toggle
+605D BD6073           (       sizzle.asm):00075             jsr view_toggle
+6060 7E601A           (       sizzle.asm):00076             jmp menu_loop
+                      (       sizzle.asm):00077         
+6063                  (       sizzle.asm):00078         inc_value
+6063 7C6000           (       sizzle.asm):00079                 inc bits
+6066 BD607B           (       sizzle.asm):00080                 jsr update_bits
+6069 20E3             (       sizzle.asm):00081                 bra check_view
+                      (       sizzle.asm):00082         
+606B                  (       sizzle.asm):00083         dec_value
+606B 7A6000           (       sizzle.asm):00084                 dec bits
+606E BD607B           (       sizzle.asm):00085                 jsr update_bits
+6071 20DB             (       sizzle.asm):00086                 bra check_view
+                      (       sizzle.asm):00087         
+6073                  (       sizzle.asm):00088         view_toggle
+6073 13               (       sizzle.asm):00089             sync
+6074 736001           (       sizzle.asm):00090             com toggle
+6077 2723             (       sizzle.asm):00091             beq switch_to_menu_view
+                      (       sizzle.asm):00092             ; change to display
+6079 2038             (       sizzle.asm):00093             bra switch_to_display_view
+                      (       sizzle.asm):00094         
+607B                  (       sizzle.asm):00095         update_bits
+                      (       sizzle.asm):00096             ; Write bits to text screen
+607B B66000           (       sizzle.asm):00097             lda bits
+607E C608             (       sizzle.asm):00098             ldb #8
+6080 3406             (       sizzle.asm):00099             pshs a,b
+6082 8631             (       sizzle.asm):00100             lda #'1
+6084 C630             (       sizzle.asm):00101             ldb #'0
+6086 8E0460           (       sizzle.asm):00102             ldx #1120
+6089                  (       sizzle.asm):00103         info_loop
+6089 6860             (       sizzle.asm):00104             lsl 0,s
+608B 2404             (       sizzle.asm):00105             bcc write0
+608D                  (       sizzle.asm):00106         write1
+608D A784             (       sizzle.asm):00107             sta ,x
+608F 2002             (       sizzle.asm):00108             bra written
+6091                  (       sizzle.asm):00109         write0
+6091 E784             (       sizzle.asm):00110             stb ,x
+6093                  (       sizzle.asm):00111         written
+6093 308820           (       sizzle.asm):00112             leax 32,x
+6096 6A61             (       sizzle.asm):00113             dec 1,s
+6098 26EF             (       sizzle.asm):00114             bne info_loop
+609A 3586             (       sizzle.asm):00115             puls a,b,pc
+                      (       sizzle.asm):00116                 
+                      (       sizzle.asm):00117         ; Display bit description
+609C                  (       sizzle.asm):00118         switch_to_menu_view
+609C                  (       sizzle.asm):00119         info_display
+                      (       sizzle.asm):00120             ; set display address to $400
+609C B7FFC6           (       sizzle.asm):00121             sta $ffc6
+609F B7FFCA           (       sizzle.asm):00122             sta $ffca
+                      (       sizzle.asm):00123             ; Set display mode to SG4
+60A2 B7FFC0           (       sizzle.asm):00124             sta $ffc0
+60A5 B7FFC2           (       sizzle.asm):00125             sta $ffc2
+60A8 B7FFC4           (       sizzle.asm):00126             sta $ffc4
+60AB 8600             (       sizzle.asm):00127             lda #$0
+60AD B7FF22           (       sizzle.asm):00128             sta $ff22
+60B0                  (       sizzle.asm):00129         write_bits
+60B0 8DC9             (       sizzle.asm):00130                 bsr update_bits
+60B2 39               (       sizzle.asm):00131                 rts
+                      (       sizzle.asm):00132                 
+60B3                  (       sizzle.asm):00133         switch_to_display_view
+                      (       sizzle.asm):00134         ; Update SAM
+60B3 B66000           (       sizzle.asm):00135             lda bits
+60B6                  (       sizzle.asm):00136         do_v2
+60B6 48               (       sizzle.asm):00137             lsla
+60B7 2405             (       sizzle.asm):00138             bcc v2c
+60B9                  (       sizzle.asm):00139         v2s
+60B9 B7FFC5           (       sizzle.asm):00140             sta $ffc5
+60BC 2003             (       sizzle.asm):00141             bra do_v1
+60BE                  (       sizzle.asm):00142         v2c
+60BE B7FFC4           (       sizzle.asm):00143             sta $ffc4
+60C1                  (       sizzle.asm):00144         do_v1    
+60C1 48               (       sizzle.asm):00145             lsla
+60C2 2405             (       sizzle.asm):00146             bcc v1c
+60C4                  (       sizzle.asm):00147         v1s
+60C4 B7FFC3           (       sizzle.asm):00148             sta $ffc3
+60C7 2003             (       sizzle.asm):00149             bra do_v0
+60C9                  (       sizzle.asm):00150         v1c
+60C9 B7FFC2           (       sizzle.asm):00151             sta $ffc2
+60CC                  (       sizzle.asm):00152         do_v0
+60CC 48               (       sizzle.asm):00153             lsla
+60CD 2405             (       sizzle.asm):00154             bcc v0c
+60CF                  (       sizzle.asm):00155         v0s
+60CF B7FFC1           (       sizzle.asm):00156             sta $ffc1
+60D2 2003             (       sizzle.asm):00157             bra do_vdg
+60D4                  (       sizzle.asm):00158         v0c
+60D4 B7FFC0           (       sizzle.asm):00159             sta $ffc0
+                      (       sizzle.asm):00160         ; update VDG
+60D7                  (       sizzle.asm):00161         do_vdg
+60D7 B7FF22           (       sizzle.asm):00162             sta $ff22
+                      (       sizzle.asm):00163         ; Switch display address to $e00    
+60DA B7FFC7           (       sizzle.asm):00164             sta $ffc7
+60DD B7FFCB           (       sizzle.asm):00165             sta $ffcb
+60E0 39               (       sizzle.asm):00166             rts
+                      (       sizzle.asm):00167         
+60E1                  (       sizzle.asm):00168         go_view_all
+60E1 7F6001           (       sizzle.asm):00169             clr toggle
+60E4 736001           (       sizzle.asm):00170             com toggle
+60E7                  (       sizzle.asm):00171         next_view
+60E7 736001           (       sizzle.asm):00172             com toggle
+60EA 8DB0             (       sizzle.asm):00173             bsr switch_to_menu_view   
+                      (       sizzle.asm):00174         ; wait four video frames
+60EC 13               (       sizzle.asm):00175             sync
+60ED 12               (       sizzle.asm):00176             nop
+60EE 13               (       sizzle.asm):00177             sync
+60EF 12               (       sizzle.asm):00178             nop
+60F0 13               (       sizzle.asm):00179             sync
+60F1 12               (       sizzle.asm):00180             nop
+60F2 13               (       sizzle.asm):00181             sync
+60F3 12               (       sizzle.asm):00182             nop
+60F4 13               (       sizzle.asm):00183             sync
+60F5 12               (       sizzle.asm):00184             nop
+60F6 13               (       sizzle.asm):00185             sync
+60F7 12               (       sizzle.asm):00186             nop
+60F8 13               (       sizzle.asm):00187             sync
+60F9 12               (       sizzle.asm):00188             nop
+60FA 13               (       sizzle.asm):00189             sync
+60FB 12               (       sizzle.asm):00190             nop
+60FC 13               (       sizzle.asm):00191             sync
+60FD 12               (       sizzle.asm):00192             nop
+60FE 13               (       sizzle.asm):00193             sync
+60FF 12               (       sizzle.asm):00194             nop
+6100 13               (       sizzle.asm):00195             sync
+6101 12               (       sizzle.asm):00196             nop
+6102 13               (       sizzle.asm):00197             sync
+6103 12               (       sizzle.asm):00198             nop
+6104 736001           (       sizzle.asm):00199             com toggle
+6107 8DAA             (       sizzle.asm):00200             bsr switch_to_display_view
+                      (       sizzle.asm):00201         ; wait four video frames
+6109 13               (       sizzle.asm):00202             sync
+610A 12               (       sizzle.asm):00203             nop
+610B 13               (       sizzle.asm):00204             sync
+610C 12               (       sizzle.asm):00205             nop
+610D 13               (       sizzle.asm):00206             sync
+610E 12               (       sizzle.asm):00207             nop
+610F 13               (       sizzle.asm):00208             sync
+6110 12               (       sizzle.asm):00209             nop
+6111 13               (       sizzle.asm):00210             sync
+6112 12               (       sizzle.asm):00211             nop
+6113 13               (       sizzle.asm):00212             sync
+6114 12               (       sizzle.asm):00213             nop
+6115 13               (       sizzle.asm):00214             sync
+6116 12               (       sizzle.asm):00215             nop
+6117 13               (       sizzle.asm):00216             sync
+6118 12               (       sizzle.asm):00217             nop
+6119 13               (       sizzle.asm):00218             sync
+611A 12               (       sizzle.asm):00219             nop
+611B 13               (       sizzle.asm):00220             sync
+611C 12               (       sizzle.asm):00221             nop
+611D 13               (       sizzle.asm):00222             sync
+611E 12               (       sizzle.asm):00223             nop
+611F 13               (       sizzle.asm):00224             sync
+6120 12               (       sizzle.asm):00225             nop
+                      (       sizzle.asm):00226         ; check for key press
+6121 AD9FA000         (       sizzle.asm):00227             jsr [POLCAT]
+6125 2605             (       sizzle.asm):00228             bne finish
+                      (       sizzle.asm):00229         ; incement same/vdg bits
+6127 7C6000           (       sizzle.asm):00230             inc bits
+612A 26BB             (       sizzle.asm):00231             bne next_view
+612C                  (       sizzle.asm):00232         finish
+612C 39               (       sizzle.asm):00233             rts
+                      (       sizzle.asm):00234         
+                      (       sizzle.asm):00235             end start

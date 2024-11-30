@@ -34,6 +34,10 @@ menu_loop
     beq sub_go
     cmpa #'T
     beq sub_toggle
+    cmpa #'S
+    beq inc_value
+    cmpa #'A
+    beq dec_value
     cmpa #'8
     ble sub_number
     bra menu_loop
@@ -57,6 +61,7 @@ found_mask
     stb bits
     bsr write_bits
 ; check view
+check_view
     tst toggle
     beq menu_loop
     bsr switch_to_display_view
@@ -70,6 +75,16 @@ sub_toggle
     jsr view_toggle
     jmp menu_loop
 
+inc_value
+	inc bits
+	jsr update_bits
+	bra check_view
+
+dec_value
+	dec bits
+	jsr update_bits
+	bra check_view
+
 view_toggle
     sync
     com toggle
@@ -77,19 +92,7 @@ view_toggle
     ; change to display
     bra switch_to_display_view
 
-; Display bit description
-switch_to_menu_view
-info_display
-    ; set display address to $400
-    sta $ffc6
-    sta $ffca
-    ; Set display mode to SG4
-    sta $ffc0
-    sta $ffc2
-    sta $ffc4
-    lda #$0
-    sta $ff22
-write_bits
+update_bits
     ; Write bits to text screen
     lda bits
     ldb #8
@@ -110,7 +113,23 @@ written
     dec 1,s
     bne info_loop
     puls a,b,pc
-
+	
+; Display bit description
+switch_to_menu_view
+info_display
+    ; set display address to $400
+    sta $ffc6
+    sta $ffca
+    ; Set display mode to SG4
+    sta $ffc0
+    sta $ffc2
+    sta $ffc4
+    lda #$0
+    sta $ff22
+write_bits
+	bsr update_bits
+	rts
+	
 switch_to_display_view
 ; Update SAM
     lda bits
